@@ -1,6 +1,7 @@
-[![](https://jitpack.io/v/sakura-ryoko/litematica.svg)](https://jitpack.io/#sakura-ryoko/litematica)
+# Litematica Rewrite
 
-Litematica
+***NOTE: This mod is barely started and is not ready for use. There are no current changes to Litematica, but I have set up the repository so that I may work on it ***
+
 ==============
 Litematica is a client-side Minecraft mod using LiteLoader.
 It is more or less a re-creation of or a substitute for [Schematica](https://minecraft.curseforge.com/projects/schematica),
