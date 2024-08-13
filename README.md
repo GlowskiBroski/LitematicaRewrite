@@ -1,13 +1,8 @@
-Litematica
-==============
-Litematica is a client-side Minecraft mod using LiteLoader.
-It is more or less a re-creation of or a substitute for [Schematica](https://minecraft.curseforge.com/projects/schematica),
-for players who don't want to have Forge installed.
-For compiled builds (= downloads), see http://minecraft.curseforge.com/projects/litematica
+# Litematica Rewrite
 
-Compiling
-=========
-* Clone the repository
-* Open a command prompt/terminal to the repository directory
-* run 'gradlew build'
-* The built jar file will be in build/libs/
+`NOTE: This mod is barely started and is not ready for use. There are no current changes to Litematica, but I have set up the repository so that I may work on it `
+
+Litematica was a mod created from the vision of Schematica. It was originally made for LiteLoader, but has been ported for fabric and the latest version of Minecraft.
+Litematica has confusing config windows, complex controls, and is extremely difficult to navigate. The goal of this repository is to streamline the code and fix this usability issue.
+
+This repository in particular is forked from https://github.com/sakura-ryoko/litematica, a community updated version
