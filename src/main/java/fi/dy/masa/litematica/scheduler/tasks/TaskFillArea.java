@@ -27,6 +27,8 @@ import fi.dy.masa.litematica.selection.Box;
 import fi.dy.masa.litematica.util.EntityUtils;
 import fi.dy.masa.litematica.util.WorldUtils;
 
+import static fi.dy.masa.litematica.Litematica.MC;
+
 public class TaskFillArea extends TaskProcessChunkMultiPhase
 {
     protected final Queue<String> queuedCommands = Queues.newArrayDeque();
@@ -235,7 +237,7 @@ public class TaskFillArea extends TaskProcessChunkMultiPhase
         if (removeEntities)
         {
             net.minecraft.util.math.Box aabb = new net.minecraft.util.math.Box(box.minX, box.minY, box.minZ, box.maxX + 1, box.maxY + 1, box.maxZ + 1);
-            List<Entity> entities = this.world.getOtherEntities(this.mc.player, aabb, EntityUtils.NOT_PLAYER);
+            List<Entity> entities = this.world.getOtherEntities(MC.player, aabb, EntityUtils.NOT_PLAYER);
 
             for (Entity entity : entities)
             {
@@ -285,7 +287,7 @@ public class TaskFillArea extends TaskProcessChunkMultiPhase
         {
             net.minecraft.util.math.Box aabb = new net.minecraft.util.math.Box(box.minX, box.minY, box.minZ, box.maxX + 1, box.maxY + 1, box.maxZ + 1);
 
-            if (this.world.getOtherEntities(this.mc.player, aabb, EntityUtils.NOT_PLAYER).size() > 0)
+            if (this.world.getOtherEntities(MC.player, aabb, EntityUtils.NOT_PLAYER).size() > 0)
             {
                 String killCmd = String.format("kill @e[type=!player,x=%d,y=%d,z=%d,dx=%d,dy=%d,dz=%d]",
                         box.minX               , box.minY               , box.minZ,

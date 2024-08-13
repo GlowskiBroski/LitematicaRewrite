@@ -1,26 +1,24 @@
 package fi.dy.masa.litematica.scheduler.tasks;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 import com.google.common.collect.ArrayListMultimap;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.World;
-import fi.dy.masa.malilib.util.IntBoundingBox;
-import fi.dy.masa.malilib.util.LayerMode;
-import fi.dy.masa.malilib.util.LayerRange;
-import fi.dy.masa.malilib.util.StringUtils;
-import fi.dy.masa.malilib.util.WorldUtils;
 import fi.dy.masa.litematica.render.infohud.InfoHud;
 import fi.dy.masa.litematica.selection.Box;
 import fi.dy.masa.litematica.util.PositionUtils;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
 import fi.dy.masa.litematica.world.WorldSchematic;
+import fi.dy.masa.malilib.util.*;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.World;
 
-public abstract class TaskProcessChunkBase extends TaskBase
-{
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
+import static fi.dy.masa.litematica.Litematica.MC;
+
+public abstract class TaskProcessChunkBase extends TaskBase {
     protected final ArrayListMultimap<ChunkPos, IntBoundingBox> boxesInChunks = ArrayListMultimap.create();
     protected final ArrayList<ChunkPos> pendingChunks = new ArrayList<>();
     protected final ClientWorld clientWorld;
@@ -29,12 +27,11 @@ public abstract class TaskProcessChunkBase extends TaskBase
     protected final boolean isClientWorld;
     protected PositionUtils.ChunkPosComparator comparator = new PositionUtils.ChunkPosComparator();
 
-    protected TaskProcessChunkBase(String nameOnHud)
-    {
-        this.clientWorld = this.mc.world;
-        this.world = WorldUtils.getBestWorld(this.mc);
+    protected TaskProcessChunkBase(String nameOnHud) {
+        this.clientWorld = MC.world;
+        this.world = WorldUtils.getBestWorld(MC);
         this.schematicWorld = SchematicWorldHandler.getSchematicWorld();
-        this.isClientWorld = (this.world == this.mc.world);
+        this.isClientWorld = (this.world == MC.world);
         this.name = StringUtils.translate(nameOnHud);
         this.comparator.setClosestFirst(true);
 
@@ -42,56 +39,46 @@ public abstract class TaskProcessChunkBase extends TaskBase
     }
 
     @Override
-    public boolean execute()
-    {
+    public boolean execute() {
         return this.executeForAllPendingChunks();
     }
 
     @Override
-    public void stop()
-    {
+    public void stop() {
         // Multiplayer, just a client world
-        if (this.isClientWorld)
-        {
+        if (this.isClientWorld) {
             this.onStop();
         }
         // Single player, operating in the integrated server world
-        else
-        {
-            this.mc.execute(this::onStop);
+        else {
+            MC.execute(this::onStop);
         }
     }
 
-    protected void onStop()
-    {
+    protected void onStop() {
         this.notifyListener();
     }
 
     protected abstract boolean canProcessChunk(ChunkPos pos);
 
-    protected boolean processChunk(ChunkPos pos)
-    {
+    protected boolean processChunk(ChunkPos pos) {
         return true;
     }
 
-    protected boolean executeForAllPendingChunks()
-    {
+    protected boolean executeForAllPendingChunks() {
         Iterator<ChunkPos> iterator = this.pendingChunks.iterator();
         int processed = 0;
 
-        while (iterator.hasNext())
-        {
+        while (iterator.hasNext()) {
             ChunkPos pos = iterator.next();
 
-            if (this.canProcessChunk(pos) && this.processChunk(pos))
-            {
+            if (this.canProcessChunk(pos) && this.processChunk(pos)) {
                 iterator.remove();
                 ++processed;
             }
         }
 
-        if (processed > 0)
-        {
+        if (processed > 0) {
             this.updateInfoHudLinesPendingChunks(this.pendingChunks);
         }
 
@@ -100,22 +87,17 @@ public abstract class TaskProcessChunkBase extends TaskBase
         return this.finished;
     }
 
-    protected void addPerChunkBoxes(Collection<Box> allBoxes)
-    {
+    protected void addPerChunkBoxes(Collection<Box> allBoxes) {
         this.addPerChunkBoxes(allBoxes, new LayerRange(null));
     }
 
-    protected void addPerChunkBoxes(Collection<Box> allBoxes, LayerRange range)
-    {
+    protected void addPerChunkBoxes(Collection<Box> allBoxes, LayerRange range) {
         this.boxesInChunks.clear();
         this.pendingChunks.clear();
 
-        if (range.getLayerMode() == LayerMode.ALL)
-        {
+        if (range.getLayerMode() == LayerMode.ALL) {
             PositionUtils.getPerChunkBoxes(allBoxes, this::clampToWorldHeightAndAddBox);
-        }
-        else
-        {
+        } else {
             PositionUtils.getLayerRangeClampedPerChunkBoxes(allBoxes, range, this::clampToWorldHeightAndAddBox);
         }
 
@@ -124,28 +106,22 @@ public abstract class TaskProcessChunkBase extends TaskBase
         this.sortChunkList();
     }
 
-    protected void clampToWorldHeightAndAddBox(ChunkPos pos, IntBoundingBox box)
-    {
+    protected void clampToWorldHeightAndAddBox(ChunkPos pos, IntBoundingBox box) {
         box = PositionUtils.clampBoxToWorldHeightRange(box, this.clientWorld);
 
-        if (box != null)
-        {
+        if (box != null) {
             this.boxesInChunks.put(pos, box);
         }
     }
 
-    protected List<IntBoundingBox> getBoxesInChunk(ChunkPos pos)
-    {
+    protected List<IntBoundingBox> getBoxesInChunk(ChunkPos pos) {
         return this.boxesInChunks.get(pos);
     }
 
-    protected void sortChunkList()
-    {
-        if (this.pendingChunks.size() > 0)
-        {
-            if (this.mc.player != null)
-            {
-                this.comparator.setReferencePosition(this.mc.player.getBlockPos());
+    protected void sortChunkList() {
+        if (this.pendingChunks.size() > 0) {
+            if (MC.player != null) {
+                this.comparator.setReferencePosition(MC.player.getBlockPos());
                 this.pendingChunks.sort(this.comparator);
             }
 
@@ -154,12 +130,10 @@ public abstract class TaskProcessChunkBase extends TaskBase
         }
     }
 
-    protected void onChunkListSorted()
-    {
+    protected void onChunkListSorted() {
     }
 
-    protected void updateInfoHudLines()
-    {
+    protected void updateInfoHudLines() {
         this.updateInfoHudLinesPendingChunks(this.pendingChunks);
     }
 }

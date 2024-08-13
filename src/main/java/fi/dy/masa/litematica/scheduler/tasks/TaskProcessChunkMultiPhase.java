@@ -1,9 +1,9 @@
 package fi.dy.masa.litematica.scheduler.tasks;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import javax.annotation.Nullable;
+import fi.dy.masa.litematica.config.Configs;
+import fi.dy.masa.litematica.data.DataManager;
+import fi.dy.masa.litematica.util.ToBooleanFunction;
+import fi.dy.masa.malilib.util.IntBoundingBox;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.text.MutableText;
@@ -12,21 +12,25 @@ import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import fi.dy.masa.malilib.util.IntBoundingBox;
-import fi.dy.masa.litematica.config.Configs;
-import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.util.ToBooleanFunction;
 
-public abstract class TaskProcessChunkMultiPhase extends TaskProcessChunkBase
-{
-    protected TaskPhase phase = TaskPhase.INIT;
-    @Nullable protected ChunkPos currentChunkPos;
-    @Nullable protected IntBoundingBox currentBox;
-    @Nullable protected Iterator<Entity> entityIterator;
-    @Nullable protected Iterator<BlockPos> positionIterator;
+import javax.annotation.Nullable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 
+import static fi.dy.masa.litematica.Litematica.MC;
+
+public abstract class TaskProcessChunkMultiPhase extends TaskProcessChunkBase {
     protected final boolean useWorldEdit;
-
+    protected TaskPhase phase = TaskPhase.INIT;
+    @Nullable
+    protected ChunkPos currentChunkPos;
+    @Nullable
+    protected IntBoundingBox currentBox;
+    @Nullable
+    protected Iterator<Entity> entityIterator;
+    @Nullable
+    protected Iterator<BlockPos> positionIterator;
     protected int maxCommandsPerTick = 16;
     protected int processedChunksThisTick;
     protected int sentCommandsThisTick;
@@ -42,129 +46,95 @@ public abstract class TaskProcessChunkMultiPhase extends TaskProcessChunkBase
     protected Runnable processBoxBlocksTask;
     protected Runnable processBoxEntitiesTask;
 
-    public enum TaskPhase
-    {
-        INIT,
-        GAME_RULE_PROBE,
-        WAIT_FOR_CHUNKS,
-        PROCESS_BOX_BLOCKS,
-        PROCESS_BOX_ENTITIES,
-        FINISHED
-    }
-
-    protected TaskProcessChunkMultiPhase(String nameOnHud)
-    {
+    protected TaskProcessChunkMultiPhase(String nameOnHud) {
         super(nameOnHud);
 
         this.useWorldEdit = Configs.Generic.COMMAND_USE_WORLDEDIT.getBooleanValue();
     }
 
-    protected boolean executeMultiPhase()
-    {
+    protected boolean executeMultiPhase() {
         this.taskStartTimeForCurrentTick = Util.getMeasuringTimeNano();
         this.sentCommandsThisTick = 0;
         this.processedChunksThisTick = 0;
 
-        if (this.phase == TaskPhase.INIT)
-        {
+        if (this.phase == TaskPhase.INIT) {
             this.initTask.run();
         }
 
-        if (this.phase == TaskPhase.GAME_RULE_PROBE)
-        {
+        if (this.phase == TaskPhase.GAME_RULE_PROBE) {
             this.probeTask.run();
             return false;
         }
 
-        if (this.currentChunkPos != null && this.canProcessChunk(this.currentChunkPos) == false)
-        {
+        if (this.currentChunkPos != null && !this.canProcessChunk(this.currentChunkPos)) {
             return false;
         }
 
         int commandsLast = -1;
         ChunkPos lastChunk = this.currentChunkPos;
 
-        while (this.sentCommandsThisTick < this.maxCommandsPerTick &&
-               (this.sentCommandsThisTick > commandsLast || Objects.equals(lastChunk, this.currentChunkPos) == false))
-        {
+        while (this.sentCommandsThisTick < this.maxCommandsPerTick && (this.sentCommandsThisTick > commandsLast || !Objects.equals(lastChunk, this.currentChunkPos))) {
             long currentTime = Util.getMeasuringTimeNano();
             long elapsedTickTime = (currentTime - this.taskStartTimeForCurrentTick);
 
-            if (elapsedTickTime >= 25000000L)
-            {
+            if (elapsedTickTime >= 25000000L) {
                 break;
             }
 
             commandsLast = this.sentCommandsThisTick;
             lastChunk = this.currentChunkPos;
 
-            if (this.phase == TaskPhase.WAIT_FOR_CHUNKS)
-            {
+            if (this.phase == TaskPhase.WAIT_FOR_CHUNKS) {
                 this.waitForChunkTask.run();
             }
 
-            if (this.phase == TaskPhase.PROCESS_BOX_BLOCKS)
-            {
+            if (this.phase == TaskPhase.PROCESS_BOX_BLOCKS) {
                 this.processBoxBlocksTask.run();
             }
 
-            if (this.phase == TaskPhase.PROCESS_BOX_ENTITIES)
-            {
+            if (this.phase == TaskPhase.PROCESS_BOX_ENTITIES) {
                 this.processBoxEntitiesTask.run();
             }
 
-            if (this.phase == TaskPhase.FINISHED)
-            {
+            if (this.phase == TaskPhase.FINISHED) {
                 return true;
             }
         }
 
-        if (this.processedChunksThisTick > 0)
-        {
+        if (this.processedChunksThisTick > 0) {
             this.updateInfoHudLines();
         }
 
         return false;
     }
 
-    protected void initPhaseStartProbe()
-    {
-        if (Configs.Generic.COMMAND_DISABLE_FEEDBACK.getBooleanValue() && this.isInWorld())
-        {
+    protected void initPhaseStartProbe() {
+        if (Configs.Generic.COMMAND_DISABLE_FEEDBACK.getBooleanValue() && this.isInWorld()) {
             DataManager.addChatListener(this.gameRuleListener);
             this.sendCommand("gamerule sendCommandFeedback");
             this.gameRuleProbeTimeout = Util.getMeasuringTimeNano() + this.maxGameRuleProbeTime;
             this.phase = TaskPhase.GAME_RULE_PROBE;
-        }
-        else
-        {
+        } else {
             this.shouldEnableFeedback = false;
             this.phase = TaskPhase.WAIT_FOR_CHUNKS;
         }
     }
 
-    protected void probePhase()
-    {
-        if (Util.getMeasuringTimeNano() > this.gameRuleProbeTimeout)
-        {
+    protected void probePhase() {
+        if (Util.getMeasuringTimeNano() > this.gameRuleProbeTimeout) {
             this.shouldEnableFeedback = false;
             this.phase = TaskPhase.WAIT_FOR_CHUNKS;
         }
     }
 
-    protected boolean checkCommandFeedbackGameRuleState(Text message)
-    {
-        if (this.isInWorld() && message instanceof MutableText mutableText &&
-            mutableText.getContent() instanceof TranslatableTextContent text)
-        {
-            if ("commands.gamerule.query".equals(text.getKey()))
-            {
+    protected boolean checkCommandFeedbackGameRuleState(Text message) {
+        if (this.isInWorld() && message instanceof MutableText mutableText && mutableText.getContent() instanceof TranslatableTextContent text) {
+            if ("commands.gamerule.query".equals(text.getKey())) {
                 Object[] args = text.getArgs();
                 this.shouldEnableFeedback = args.length == 1 && args[0].equals("true");
                 this.phase = TaskPhase.WAIT_FOR_CHUNKS;
 
-                if (this.shouldEnableFeedback)
-                {
+                if (this.shouldEnableFeedback) {
                     this.sendCommand("gamerule sendCommandFeedback false");
                 }
 
@@ -175,70 +145,54 @@ public abstract class TaskProcessChunkMultiPhase extends TaskProcessChunkBase
         return false;
     }
 
-    protected void fetchNextChunk()
-    {
-        if (this.pendingChunks.isEmpty() == false)
-        {
+    protected void fetchNextChunk() {
+        if (!this.pendingChunks.isEmpty()) {
             this.sortChunkList();
 
             ChunkPos pos = this.pendingChunks.get(0);
 
-            if (this.canProcessChunk(pos))
-            {
+            if (this.canProcessChunk(pos)) {
                 this.currentChunkPos = pos;
                 this.onNextChunkFetched(pos);
             }
-        }
-        else
-        {
+        } else {
             this.phase = TaskPhase.FINISHED;
             this.finished = true;
         }
     }
 
-    protected void onNextChunkFetched(ChunkPos pos)
-    {
+    protected void onNextChunkFetched(ChunkPos pos) {
     }
 
-    protected void startNextBox(ChunkPos pos)
-    {
+    protected void startNextBox(ChunkPos pos) {
         List<IntBoundingBox> list = this.boxesInChunks.get(pos);
 
-        if (list.isEmpty() == false)
-        {
+        if (!list.isEmpty()) {
             this.currentBox = list.get(0);
             this.onStartNextBox(this.currentBox);
-        }
-        else
-        {
+        } else {
             this.currentBox = null;
             this.phase = TaskPhase.WAIT_FOR_CHUNKS;
         }
     }
 
-    protected void onStartNextBox(IntBoundingBox box)
-    {
+    protected void onStartNextBox(IntBoundingBox box) {
     }
 
-    protected void onFinishedProcessingBox(ChunkPos pos, IntBoundingBox box)
-    {
+    protected void onFinishedProcessingBox(ChunkPos pos, IntBoundingBox box) {
         this.boxesInChunks.remove(pos, box);
         this.currentBox = null;
         this.entityIterator = null;
         this.positionIterator = null;
 
-        if (this.boxesInChunks.get(pos).isEmpty())
-        {
+        if (this.boxesInChunks.get(pos).isEmpty()) {
             this.finishProcessingChunk(pos);
-        }
-        else
-        {
+        } else {
             this.startNextBox(pos);
         }
     }
 
-    protected void finishProcessingChunk(ChunkPos pos)
-    {
+    protected void finishProcessingChunk(ChunkPos pos) {
         this.boxesInChunks.removeAll(pos);
         this.pendingChunks.remove(pos);
         this.currentChunkPos = null;
@@ -247,34 +201,31 @@ public abstract class TaskProcessChunkMultiPhase extends TaskProcessChunkBase
         this.onFinishedProcessingChunk(pos);
     }
 
-    protected void onFinishedProcessingChunk(ChunkPos pos)
-    {
+    protected void onFinishedProcessingChunk(ChunkPos pos) {
     }
 
-    protected void sendCommand(String cmd)
-    {
-        this.sendCommand(cmd, this.mc.player);
+    protected void sendCommand(String cmd) {
+        this.sendCommand(cmd, MC.player);
     }
 
-    protected void sendCommand(String command, ClientPlayerEntity player)
-    {
+    protected void sendCommand(String command, ClientPlayerEntity player) {
         player.networkHandler.sendCommand(command);
         ++this.sentCommandsThisTick;
     }
 
-    protected void sendTaskEndCommands()
-    {
-        if (this.isInWorld())
-        {
-            if (this.useWorldEdit)
-            {
+    protected void sendTaskEndCommands() {
+        if (this.isInWorld()) {
+            if (this.useWorldEdit) {
                 this.sendCommand("/perf neighbors on");
             }
 
-            if (this.shouldEnableFeedback)
-            {
+            if (this.shouldEnableFeedback) {
                 this.sendCommand("gamerule sendCommandFeedback true");
             }
         }
+    }
+
+    public enum TaskPhase {
+        INIT, GAME_RULE_PROBE, WAIT_FOR_CHUNKS, PROCESS_BOX_BLOCKS, PROCESS_BOX_ENTITIES, FINISHED
     }
 }

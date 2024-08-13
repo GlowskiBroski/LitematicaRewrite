@@ -10,16 +10,17 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 
+import static fi.dy.masa.litematica.Litematica.MC;
+
 public class SchematicWorldRefresher implements IRangeChangeListener {
     public static final SchematicWorldRefresher INSTANCE = new SchematicWorldRefresher();
 
-    private final MinecraftClient mc = MinecraftClient.getInstance();
 
     @Override
     public void updateAll() {
         WorldSchematic world = SchematicWorldHandler.getSchematicWorld();
 
-        if (world != null && this.mc.world != null) {
+        if (world != null && MC.world != null) {
             DataManager.getSchematicPlacementManager().setVisibleSubChunksNeedsUpdate();
             final int minY = world.getBottomY();
             final int maxY = world.getTopY() - 1;
@@ -31,7 +32,7 @@ public class SchematicWorldRefresher implements IRangeChangeListener {
     public void updateBetweenX(int minX, int maxX) {
         WorldSchematic world = SchematicWorldHandler.getSchematicWorld();
 
-        if (world != null && this.mc.world != null) {
+        if (world != null && MC.world != null) {
             DataManager.getSchematicPlacementManager().setVisibleSubChunksNeedsUpdate();
             Long2ObjectMap<ChunkSchematic> schematicChunks = world.getChunkProvider().getLoadedChunks();
             final int cxMin = (Math.min(minX, maxX) >> 4);
@@ -41,7 +42,7 @@ public class SchematicWorldRefresher implements IRangeChangeListener {
                 ChunkPos pos = chunk.getPos();
 
                 // Only mark chunks that are actually rendered (if the schematic world contains more chunks)
-                if (pos.x >= cxMin && pos.x <= cxMax && !chunk.isEmpty() && WorldUtils.isClientChunkLoaded(this.mc.world, pos.x, pos.z)) {
+                if (pos.x >= cxMin && pos.x <= cxMax && !chunk.isEmpty() && WorldUtils.isClientChunkLoaded(MC.world, pos.x, pos.z)) {
                     world.scheduleChunkRenders(pos.x, pos.z);
                 }
             }
@@ -52,7 +53,7 @@ public class SchematicWorldRefresher implements IRangeChangeListener {
     public void updateBetweenY(int minY, int maxY) {
         WorldSchematic world = SchematicWorldHandler.getSchematicWorld();
 
-        if (world != null && this.mc.world != null) {
+        if (world != null && MC.world != null) {
             DataManager.getSchematicPlacementManager().setVisibleSubChunksNeedsUpdate();
             Long2ObjectMap<ChunkSchematic> schematicChunks = world.getChunkProvider().getLoadedChunks();
 
@@ -60,7 +61,7 @@ public class SchematicWorldRefresher implements IRangeChangeListener {
                 ChunkPos pos = chunk.getPos();
 
                 // Only mark chunks that are actually rendered (if the schematic world contains more chunks)
-                if (!chunk.isEmpty() && WorldUtils.isClientChunkLoaded(this.mc.world, pos.x, pos.z)) {
+                if (!chunk.isEmpty() && WorldUtils.isClientChunkLoaded(MC.world, pos.x, pos.z)) {
                     world.scheduleChunkRenders(pos.x, pos.z);
                 }
             }
@@ -71,7 +72,7 @@ public class SchematicWorldRefresher implements IRangeChangeListener {
     public void updateBetweenZ(int minZ, int maxZ) {
         WorldSchematic world = SchematicWorldHandler.getSchematicWorld();
 
-        if (world != null && this.mc.world != null) {
+        if (world != null && MC.world != null) {
             DataManager.getSchematicPlacementManager().setVisibleSubChunksNeedsUpdate();
             Long2ObjectMap<ChunkSchematic> schematicChunks = world.getChunkProvider().getLoadedChunks();
             final int czMin = (Math.min(minZ, maxZ) >> 4);
@@ -81,7 +82,7 @@ public class SchematicWorldRefresher implements IRangeChangeListener {
                 ChunkPos pos = chunk.getPos();
 
                 // Only mark chunks that are actually rendered (if the schematic world contains more chunks)
-                if (pos.z >= czMin && pos.z <= czMax && !chunk.isEmpty() && WorldUtils.isClientChunkLoaded(this.mc.world, pos.x, pos.z)) {
+                if (pos.z >= czMin && pos.z <= czMax && !chunk.isEmpty() && WorldUtils.isClientChunkLoaded(MC.world, pos.x, pos.z)) {
                     world.scheduleChunkRenders(pos.x, pos.z);
                 }
             }
@@ -91,8 +92,8 @@ public class SchematicWorldRefresher implements IRangeChangeListener {
     public void markSchematicChunksForRenderUpdate(int chunkX, int chunkZ) {
         WorldSchematic world = SchematicWorldHandler.getSchematicWorld();
 
-        if (world != null && this.mc.world != null) {
-            if (world.getChunkProvider().isChunkLoaded(chunkX, chunkZ) && WorldUtils.isClientChunkLoaded(this.mc.world, chunkX, chunkZ)) {
+        if (world != null && MC.world != null) {
+            if (world.getChunkProvider().isChunkLoaded(chunkX, chunkZ) && WorldUtils.isClientChunkLoaded(MC.world, chunkX, chunkZ)) {
                 world.scheduleChunkRenders(chunkX, chunkZ);
             }
         }
@@ -101,12 +102,12 @@ public class SchematicWorldRefresher implements IRangeChangeListener {
     public void markSchematicChunkForRenderUpdate(BlockPos pos) {
         WorldSchematic world = SchematicWorldHandler.getSchematicWorld();
 
-        if (world != null && this.mc.world != null) {
+        if (world != null && MC.world != null) {
             int chunkX = pos.getX() >> 4;
             int chunkZ = pos.getZ() >> 4;
             //Litematica.debugLog("SchematicWorldRefresher#markSchematicChunkForRenderUpdate({}, {})", chunkX, chunkZ);
 
-            if (world.getChunkProvider().isChunkLoaded(chunkX, chunkZ) && WorldUtils.isClientChunkLoaded(this.mc.world, chunkX, chunkZ)) {
+            if (world.getChunkProvider().isChunkLoaded(chunkX, chunkZ) && WorldUtils.isClientChunkLoaded(MC.world, chunkX, chunkZ)) {
                 world.scheduleChunkRenders(chunkX, chunkZ);
             }
         }

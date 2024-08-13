@@ -17,6 +17,8 @@ import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import static fi.dy.masa.litematica.Litematica.MC;
+
 public class SchematicWorldHandler {
     public static final SchematicWorldHandler INSTANCE = new SchematicWorldHandler(LitematicaRenderer.getInstance()::getWorldRenderer);
 
@@ -44,7 +46,7 @@ public class SchematicWorldHandler {
     }
 
     public static WorldSchematic createSchematicWorld(@Nullable WorldRendererSchematic worldRenderer) {
-        World world = MinecraftClient.getInstance().world;
+        World world = MC.world;
 
         if (world == null) {
             return null;
@@ -69,7 +71,7 @@ public class SchematicWorldHandler {
 
         ClientWorld.Properties levelInfo = new ClientWorld.Properties(Difficulty.PEACEFUL, false, true);
 
-        return new WorldSchematic(levelInfo, world.getRegistryManager(), entry, MinecraftClient.getInstance()::getProfiler, worldRenderer);
+        return new WorldSchematic(levelInfo, world.getRegistryManager(), entry, MC::getProfiler, worldRenderer);
     }
 
     public void recreateSchematicWorld(boolean remove) {

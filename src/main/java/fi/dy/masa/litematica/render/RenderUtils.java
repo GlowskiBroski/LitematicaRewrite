@@ -670,7 +670,7 @@ public class RenderUtils {
     /*
     private static void renderModel(final IBlockState state, final IBakedModel model, final BlockPos pos, final int alpha)
     {
-        //BlockRendererDispatcher dispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
+        //BlockRendererDispatcher dispatcher = MinecraftClient.getMinecraft().getBlockRendererDispatcher();
         //dispatcher.getBlockModelRenderer().renderModelBrightnessColor(model, 1f, 1f, 1f, 1f);
 
         final Tessellator tessellator = Tessellator.getInstance();

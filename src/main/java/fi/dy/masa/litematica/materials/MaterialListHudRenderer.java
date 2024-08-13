@@ -27,6 +27,8 @@ import net.minecraft.util.math.BlockPos;
 import java.util.Collections;
 import java.util.List;
 
+import static fi.dy.masa.litematica.Litematica.MC;
+
 public class MaterialListHudRenderer implements IInfoHudRenderer {
     protected static BlockState lastLookedAtBlock = Blocks.AIR.getDefaultState();
     protected static ItemStack lastLookedAtBlocksItem = ItemStack.EMPTY;
@@ -67,12 +69,11 @@ public class MaterialListHudRenderer implements IInfoHudRenderer {
 
     @Override
     public int render(int xOffset, int yOffset, HudAlignment alignment, DrawContext drawContext) {
-        MinecraftClient mc = MinecraftClient.getInstance();
         long currentTime = System.currentTimeMillis();
         List<MaterialListEntry> list;
 
         if (currentTime - this.lastUpdateTime > 2000) {
-            MaterialListUtils.updateAvailableCounts(this.materialList.getMaterialsAll(), mc.player);
+            MaterialListUtils.updateAvailableCounts(this.materialList.getMaterialsAll(), MC.player);
             list = this.materialList.getMaterialsMissingOnly(true);
             Collections.sort(list, this.sorter);
             this.lastUpdateTime = currentTime;
@@ -84,7 +85,7 @@ public class MaterialListHudRenderer implements IInfoHudRenderer {
             return 0;
         }
 
-        TextRenderer font = mc.textRenderer;
+        TextRenderer font = MC.textRenderer;
         final double scale = Configs.InfoOverlays.MATERIAL_LIST_HUD_SCALE.getDoubleValue();
         final int maxLines = Configs.InfoOverlays.MATERIAL_LIST_HUD_MAX_LINES.getIntegerValue();
         int bgMargin = 2;
@@ -133,7 +134,7 @@ public class MaterialListHudRenderer implements IInfoHudRenderer {
         }
 
         posY = RenderUtils.getHudPosY(posY, yOffset, contentHeight, scale, alignment);
-        posY += RenderUtils.getHudOffsetForPotions(alignment, scale, mc.player);
+        posY += RenderUtils.getHudOffsetForPotions(alignment, scale, MC.player);
 
         MatrixStack matrixStack = drawContext.getMatrices();
 

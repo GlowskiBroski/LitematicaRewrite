@@ -29,6 +29,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import static fi.dy.masa.litematica.Litematica.MC;
+
 public class ToolHud extends InfoHud {
     private static final ToolHud INSTANCE = new ToolHud();
 
@@ -49,7 +51,7 @@ public class ToolHud extends InfoHud {
     }
 
     protected boolean hasEnabledTool() {
-        return Configs.Generic.TOOL_ITEM_ENABLED.getBooleanValue() && EntityUtils.hasToolItem(this.mc.player);
+        return Configs.Generic.TOOL_ITEM_ENABLED.getBooleanValue() && EntityUtils.hasToolItem(MC.player);
     }
 
     @Override
@@ -220,10 +222,10 @@ public class ToolHud extends InfoHud {
                 lines.add(StringUtils.translate("litematica.hud.area_selection.origin", green + str + rst));
 
                 BlockState state = mode.getPrimaryBlock();
-                ItemStack stack = this.mc.player.getMainHandStack();
+                ItemStack stack = MC.player.getMainHandStack();
 
                 if (state != null && mode == ToolMode.REBUILD &&
-                        (stack.isEmpty() || EntityUtils.hasToolItemInHand(this.mc.player, Hand.MAIN_HAND))) {
+                        (stack.isEmpty() || EntityUtils.hasToolItemInHand(MC.player, Hand.MAIN_HAND))) {
                     lines.add(StringUtils.translate("litematica.tool_hud.block_1", this.getBlockString(state)));
                 }
 

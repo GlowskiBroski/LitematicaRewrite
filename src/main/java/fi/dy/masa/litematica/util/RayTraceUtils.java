@@ -38,6 +38,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static fi.dy.masa.litematica.Litematica.MC;
+
 public class RayTraceUtils {
     private static final net.minecraft.util.math.Box FULL_BLOCK_BOUNDS = new net.minecraft.util.math.Box(0, 0, 0, 1, 1, 1);
 
@@ -581,7 +583,7 @@ public class RayTraceUtils {
                                                  boolean returnLastUncollidableBlock, boolean respectLayerRange) {
         if ((!respectLayerRange || data.range.isPositionWithinRange(data.x, data.y, data.z)) &&
                 (!ignoreBlockWithoutBoundingBox || !blockState.getCollisionShape(world, data.blockPos).isEmpty())) {
-            VoxelShape blockShape = blockState.getOutlineShape(world, data.blockPos, ShapeContext.of(MinecraftClient.getInstance().player));
+            VoxelShape blockShape = blockState.getOutlineShape(world, data.blockPos, ShapeContext.of(MC.player));
             boolean blockCollidable = !blockShape.isEmpty();
             boolean fluidCollidable = data.fluidMode.handled(fluidState);
 
@@ -611,7 +613,7 @@ public class RayTraceUtils {
                 (!ignoreBlockWithoutBoundingBox || blockState.getBlock() == Blocks.NETHER_PORTAL ||
                         blockState.getBlock() == Blocks.END_PORTAL || blockState.getBlock() == Blocks.END_GATEWAY ||
                         !blockState.getCollisionShape(world, data.blockPos).isEmpty())) {
-            VoxelShape blockShape = blockState.getOutlineShape(world, data.blockPos, ShapeContext.of(MinecraftClient.getInstance().player));
+            VoxelShape blockShape = blockState.getOutlineShape(world, data.blockPos, ShapeContext.of(MC.player));
             boolean blockCollidable = !blockShape.isEmpty();
             boolean fluidCollidable = data.fluidMode.handled(fluidState);
 

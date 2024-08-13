@@ -1,16 +1,5 @@
 package fi.dy.masa.litematica.scheduler.tasks;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import javax.annotation.Nullable;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import fi.dy.masa.malilib.gui.GuiBase;
-import fi.dy.masa.malilib.interfaces.ICompletionListener;
-import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.render.infohud.IInfoHudRenderer;
 import fi.dy.masa.litematica.render.infohud.RenderPhase;
@@ -18,112 +7,101 @@ import fi.dy.masa.litematica.scheduler.ITask;
 import fi.dy.masa.litematica.scheduler.TaskTimer;
 import fi.dy.masa.litematica.util.PositionUtils;
 import fi.dy.masa.litematica.util.WorldUtils;
+import fi.dy.masa.malilib.gui.GuiBase;
+import fi.dy.masa.malilib.interfaces.ICompletionListener;
+import fi.dy.masa.malilib.util.StringUtils;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 
-public abstract class TaskBase implements ITask, IInfoHudRenderer
-{
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import static fi.dy.masa.litematica.Litematica.MC;
+
+public abstract class TaskBase implements ITask, IInfoHudRenderer {
     protected final List<String> infoHudLines = new ArrayList<>();
-    protected final MinecraftClient mc;
     protected String name = "";
-    private TaskTimer timer = new TaskTimer(1);
-    @Nullable private ICompletionListener completionListener;
     protected boolean finished;
     protected boolean printCompletionMessage = true;
+    private TaskTimer timer = new TaskTimer(1);
+    @Nullable
+    private ICompletionListener completionListener;
 
-    protected TaskBase()
-    {
-        this.mc = MinecraftClient.getInstance();
+    protected TaskBase() {
     }
 
     @Override
-    public TaskTimer getTimer()
-    {
+    public TaskTimer getTimer() {
         return this.timer;
     }
 
     @Override
-    public String getDisplayName()
-    {
+    public String getDisplayName() {
         return this.name;
     }
 
     @Override
-    public void createTimer(int interval)
-    {
+    public void createTimer(int interval) {
         this.timer = new TaskTimer(interval);
     }
 
-    public void disableCompletionMessage()
-    {
+    public void disableCompletionMessage() {
         this.printCompletionMessage = false;
     }
 
-    public void setCompletionListener(@Nullable ICompletionListener listener)
-    {
+    public void setCompletionListener(@Nullable ICompletionListener listener) {
         this.completionListener = listener;
     }
 
     @Override
-    public boolean canExecute()
-    {
+    public boolean canExecute() {
         return this.isInWorld();
     }
 
     @Override
-    public boolean shouldRemove()
-    {
-        return this.canExecute() == false;
+    public boolean shouldRemove() {
+        return !this.canExecute();
     }
 
     @Override
-    public void init()
-    {
+    public void init() {
     }
 
     @Override
-    public void stop()
-    {
+    public void stop() {
         this.notifyListener();
     }
 
-    protected boolean isInWorld()
-    {
-        return this.mc.world != null && this.mc.player != null;
+    protected boolean isInWorld() {
+        return MC.world != null && MC.player != null;
     }
 
-    protected void notifyListener()
-    {
-        if (this.completionListener != null)
-        {
-            this.mc.execute(() ->
-            {
-                if (this.finished)
-                {
+    protected void notifyListener() {
+        if (this.completionListener != null) {
+            MC.execute(() -> {
+                if (this.finished) {
                     this.completionListener.onTaskCompleted();
-                }
-                else
-                {
+                } else {
                     this.completionListener.onTaskAborted();
                 }
             });
         }
     }
 
-    protected boolean areSurroundingChunksLoaded(ChunkPos pos, ClientWorld world, int radius)
-    {
-        if (radius <= 0)
-        {
+    protected boolean areSurroundingChunksLoaded(ChunkPos pos, ClientWorld world, int radius) {
+        if (radius <= 0) {
             return WorldUtils.isClientChunkLoaded(world, pos.x, pos.z);
         }
 
         int chunkX = pos.x;
         int chunkZ = pos.z;
 
-        for (int cx = chunkX - radius; cx <= chunkX + radius; ++cx)
-        {
-            for (int cz = chunkZ - radius; cz <= chunkZ + radius; ++cz)
-            {
-                if (WorldUtils.isClientChunkLoaded(world, cx, cz) == false)
-                {
+        for (int cx = chunkX - radius; cx <= chunkX + radius; ++cx) {
+            for (int cz = chunkZ - radius; cz <= chunkZ + radius; ++cz) {
+                if (!WorldUtils.isClientChunkLoaded(world, cx, cz)) {
                     return false;
                 }
             }
@@ -132,15 +110,13 @@ public abstract class TaskBase implements ITask, IInfoHudRenderer
         return true;
     }
 
-    protected void updateInfoHudLinesPendingChunks(Collection<ChunkPos> pendingChunks)
-    {
+    protected void updateInfoHudLinesPendingChunks(Collection<ChunkPos> pendingChunks) {
         this.infoHudLines.clear();
 
-        if (pendingChunks.isEmpty() == false)
-        {
+        if (!pendingChunks.isEmpty()) {
             // TODO
             List<ChunkPos> list = new ArrayList<>(pendingChunks);
-            PositionUtils.CHUNK_POS_COMPARATOR.setReferencePosition(BlockPos.ofFloored(this.mc.player.getPos()));
+            PositionUtils.CHUNK_POS_COMPARATOR.setReferencePosition(BlockPos.ofFloored(MC.player.getPos()));
             PositionUtils.CHUNK_POS_COMPARATOR.setClosestFirst(true);
             list.sort(PositionUtils.CHUNK_POS_COMPARATOR);
 
@@ -150,8 +126,7 @@ public abstract class TaskBase implements ITask, IInfoHudRenderer
 
             int maxLines = Math.min(list.size(), Configs.InfoOverlays.INFO_HUD_MAX_LINES.getIntegerValue());
 
-            for (int i = 0; i < maxLines; ++i)
-            {
+            for (int i = 0; i < maxLines; ++i) {
                 ChunkPos pos = list.get(i);
                 this.infoHudLines.add(String.format("cx: %5d, cz: %5d (x: %d, z: %d)", pos.x, pos.z, pos.x << 4, pos.z << 4));
             }
@@ -159,14 +134,12 @@ public abstract class TaskBase implements ITask, IInfoHudRenderer
     }
 
     @Override
-    public boolean getShouldRenderText(RenderPhase phase)
-    {
+    public boolean getShouldRenderText(RenderPhase phase) {
         return phase == RenderPhase.POST;
     }
 
     @Override
-    public List<String> getText(RenderPhase phase)
-    {
+    public List<String> getText(RenderPhase phase) {
         return this.infoHudLines;
     }
 }

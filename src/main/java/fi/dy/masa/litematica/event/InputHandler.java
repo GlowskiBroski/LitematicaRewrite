@@ -23,6 +23,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
+import static fi.dy.masa.litematica.Litematica.MC;
+
 public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IMouseInputHandler {
     private static final InputHandler INSTANCE = new InputHandler();
 
@@ -31,6 +33,23 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
 
     public static InputHandler getInstance() {
         return INSTANCE;
+    }
+
+    public static boolean nudgeSelection(int amount, ToolMode mode, Entity entity) {
+        if (mode.getUsesAreaSelection()) {
+            SelectionManager sm = DataManager.getSelectionManager();
+
+            if (sm.hasSelectedElement()) {
+                sm.moveSelectedElement(EntityUtils.getClosestLookingDirection(entity), amount);
+                return true;
+            }
+        } else if (mode.getUsesSchematic()) {
+            Direction direction = EntityUtils.getClosestLookingDirection(entity);
+            DataManager.getSchematicPlacementManager().nudgePositionOfCurrentSelection(direction, amount);
+            return true;
+        }
+
+        return false;
     }
 
     @Override
@@ -48,13 +67,12 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
     @Override
     public boolean onKeyInput(int keyCode, int scanCode, int modifiers, boolean eventKeyState) {
         if (eventKeyState) {
-            MinecraftClient mc = MinecraftClient.getInstance();
 
-            if (mc.options.useKey.matchesKey(keyCode, scanCode)) {
-                return this.handleUseKey(mc);
-            } else if (mc.options.attackKey.matchesKey(keyCode, scanCode)) {
-                return this.handleAttackKey(mc);
-            } else if (mc.options.screenshotKey.matchesKey(keyCode, scanCode) && GuiSchematicManager.hasPendingPreviewTask()) {
+            if (MC.options.useKey.matchesKey(keyCode, scanCode)) {
+                return this.handleUseKey(MC);
+            } else if (MC.options.attackKey.matchesKey(keyCode, scanCode)) {
+                return this.handleAttackKey(MC);
+            } else if (MC.options.screenshotKey.matchesKey(keyCode, scanCode) && GuiSchematicManager.hasPendingPreviewTask()) {
                 return GuiSchematicManager.setPreviewImage();
             }
         }
@@ -64,13 +82,13 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
 
     @Override
     public boolean onMouseClick(int mouseX, int mouseY, int eventButton, boolean eventButtonState) {
-        MinecraftClient mc = MinecraftClient.getInstance();
+        MinecraftClient mc = MC;
 
         // Tool enabled, and not in a GUI
-        if (GuiUtils.getCurrentScreen() == null && mc.world != null && mc.player != null && eventButtonState) {
-            if (eventButtonState && mc.options.useKey.matchesMouse(eventButton)) {
+        if (GuiUtils.getCurrentScreen() == null && MC.world != null && MC.player != null && eventButtonState) {
+            if (eventButtonState && MC.options.useKey.matchesMouse(eventButton)) {
                 return this.handleUseKey(mc);
-            } else if (eventButtonState && mc.options.attackKey.matchesMouse(eventButton)) {
+            } else if (eventButtonState && MC.options.attackKey.matchesMouse(eventButton)) {
                 return this.handleAttackKey(mc);
             }
         }
@@ -81,10 +99,10 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
     @Override
     public boolean onMouseScroll(int mouseX, int mouseY, double dWheel) {
         //Litematica.debugLog("Mouse scroll: x: {}, y; {}, wheel: {}", mouseX, mouseY, dWheel);
-        MinecraftClient mc = MinecraftClient.getInstance();
+        MinecraftClient mc = MC;
 
         // Not in a GUI
-        if (GuiUtils.getCurrentScreen() == null && mc.world != null && mc.player != null) {
+        if (GuiUtils.getCurrentScreen() == null && MC.world != null && MC.player != null) {
             return this.handleMouseScroll(dWheel, mc);
         }
 
@@ -94,7 +112,7 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
     private boolean handleMouseScroll(double dWheel, MinecraftClient mc) {
         boolean toolEnabled = Configs.Visuals.ENABLE_RENDERING.getBooleanValue() && Configs.Generic.TOOL_ITEM_ENABLED.getBooleanValue();
 
-        if (!toolEnabled || !EntityUtils.hasToolItem(mc.player)) {
+        if (!toolEnabled || !EntityUtils.hasToolItem(MC.player)) {
             return false;
         }
 
@@ -130,7 +148,7 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
         }
 
         if (Hotkeys.OPERATION_MODE_CHANGE_MODIFIER.getKeybind().isKeybindHeld()) {
-            DataManager.setToolMode(DataManager.getToolMode().cycle(mc.player, amount < 0));
+            DataManager.setToolMode(DataManager.getToolMode().cycle(MC.player, amount < 0));
             return true;
         }
 
@@ -138,23 +156,6 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
             if (DataManager.getSchematicProjectsManager().hasProjectOpen()) {
                 DataManager.getSchematicProjectsManager().cycleVersion(amount * -1);
             }
-            return true;
-        }
-
-        return false;
-    }
-
-    public static boolean nudgeSelection(int amount, ToolMode mode, Entity entity) {
-        if (mode.getUsesAreaSelection()) {
-            SelectionManager sm = DataManager.getSelectionManager();
-
-            if (sm.hasSelectedElement()) {
-                sm.moveSelectedElement(EntityUtils.getClosestLookingDirection(entity), amount);
-                return true;
-            }
-        } else if (mode.getUsesSchematic()) {
-            Direction direction = EntityUtils.getClosestLookingDirection(entity);
-            DataManager.getSchematicPlacementManager().nudgePositionOfCurrentSelection(direction, amount);
             return true;
         }
 
@@ -185,7 +186,7 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
     }
 
     private boolean handleAttackKey(MinecraftClient mc) {
-        if (mc.player != null && DataManager.getToolMode() == ToolMode.REBUILD && KeybindMulti.getTriggeredCount() == 0) {
+        if (MC.player != null && DataManager.getToolMode() == ToolMode.REBUILD && KeybindMulti.getTriggeredCount() == 0) {
             if (Hotkeys.SCHEMATIC_EDIT_BREAK_DIRECTION.getKeybind().isKeybindHeld()) {
                 return SchematicUtils.breakSchematicBlocks(mc);
             } else if (Hotkeys.SCHEMATIC_EDIT_BREAK_ALL_EXCEPT.getKeybind().isKeybindHeld()) {
@@ -201,7 +202,7 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
     }
 
     private boolean handleUseKey(MinecraftClient mc) {
-        if (mc.player != null) {
+        if (MC.player != null) {
             if (DataManager.getToolMode() == ToolMode.REBUILD) {
                 if (Hotkeys.SCHEMATIC_EDIT_REPLACE_DIRECTION.getKeybind().isKeybindHeld()) {
                     return SchematicUtils.replaceSchematicBlocksInDirection(mc);
@@ -217,7 +218,7 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
                     return SchematicUtils.placeSchematicBlock(mc);
                 }
             } else if (Configs.Generic.PICK_BLOCK_ENABLED.getBooleanValue()) {
-                if (KeybindMulti.hotkeyMatchesKeybind(Hotkeys.PICK_BLOCK_LAST, mc.options.useKey)) {
+                if (KeybindMulti.hotkeyMatchesKeybind(Hotkeys.PICK_BLOCK_LAST, MC.options.useKey)) {
                     WorldUtils.doSchematicWorldPickBlock(false, mc);
                 }
             }

@@ -13,6 +13,8 @@ import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.LayerRange;
 
+import static fi.dy.masa.litematica.Litematica.MC;
+
 public class TaskPasteSchematicPerChunkDirect extends TaskPasteSchematicPerChunkBase
 {
     private final ArrayListMultimap<ChunkPos, SchematicPlacement> placementsPerChunk = ArrayListMultimap.create();
@@ -26,7 +28,7 @@ public class TaskPasteSchematicPerChunkDirect extends TaskPasteSchematicPerChunk
     public boolean canExecute()
     {
         return super.canExecute() &&
-               this.mc.isIntegratedServerRunning() &&
+               MC.isIntegratedServerRunning() &&
                this.world != null && this.world.isClient == false;
     }
 
@@ -47,7 +49,7 @@ public class TaskPasteSchematicPerChunkDirect extends TaskPasteSchematicPerChunk
             return true;
         }
 
-        MinecraftServer server = this.mc.getServer();
+        MinecraftServer server = MC.getServer();
         final long vanillaTickTime = server.getTickTimes()[server.getTicks() % 100];
         final long timeStart = Util.getMeasuringTimeNano();
 

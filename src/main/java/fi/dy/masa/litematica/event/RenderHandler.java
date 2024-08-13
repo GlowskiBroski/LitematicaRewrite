@@ -13,12 +13,12 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import org.joml.Matrix4f;
 
+import static fi.dy.masa.litematica.Litematica.MC;
+
 public class RenderHandler implements IRenderer {
     @Override
     public void onRenderWorldLast(Matrix4f matrix4f, Matrix4f projMatrix) {
-        MinecraftClient mc = MinecraftClient.getInstance();
-
-        if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() && mc.player != null) {
+        if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() && MC.player != null) {
             OverlayRenderer.getInstance().renderBoxes(matrix4f);
 
             if (Configs.InfoOverlays.VERIFIER_OVERLAY_ENABLED.getBooleanValue()) {
@@ -33,7 +33,7 @@ public class RenderHandler implements IRenderer {
 
     @Override
     public void onRenderGameOverlayPost(DrawContext drawContext) {
-        MinecraftClient mc = MinecraftClient.getInstance();
+        MinecraftClient mc = MC;
 
         if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() && mc.player != null) {
             // The Info HUD renderers can decide if they want to be rendered in GUIs

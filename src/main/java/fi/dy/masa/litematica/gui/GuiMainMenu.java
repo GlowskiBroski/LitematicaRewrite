@@ -1,8 +1,5 @@
 package fi.dy.masa.litematica.gui;
 
-import javax.annotation.Nullable;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
@@ -13,18 +10,20 @@ import fi.dy.masa.malilib.gui.button.ButtonBase;
 import fi.dy.masa.malilib.gui.button.ButtonGeneric;
 import fi.dy.masa.malilib.gui.button.IButtonActionListener;
 import fi.dy.masa.malilib.util.StringUtils;
+import net.minecraft.client.gui.screen.Screen;
 
-public class GuiMainMenu extends GuiBase
-{
-    public GuiMainMenu()
-    {
+import javax.annotation.Nullable;
+
+import static fi.dy.masa.litematica.Litematica.MC;
+
+public class GuiMainMenu extends GuiBase {
+    public GuiMainMenu() {
         String version = String.format("v%s", Reference.MOD_VERSION);
         this.title = StringUtils.translate("litematica.gui.title.litematica_main_menu", version);
     }
 
     @Override
-    public void initGui()
-    {
+    public void initGui() {
         super.initGui();
 
         int x = 12;
@@ -65,42 +64,33 @@ public class GuiMainMenu extends GuiBase
 
         this.createChangeMenuButton(x, y, width, ButtonListenerChangeMenu.ButtonType.TASK_MANAGER);
 
-        if (Configs.Generic.UNHIDE_SCHEMATIC_PROJECTS.getBooleanValue())
-        {
+        if (Configs.Generic.UNHIDE_SCHEMATIC_PROJECTS.getBooleanValue()) {
             y += 22;
             this.createChangeMenuButton(x, y, width, ButtonListenerChangeMenu.ButtonType.SCHEMATIC_PROJECTS_MANAGER);
         }
     }
 
-    private void createChangeMenuButton(int x, int y, int width, ButtonListenerChangeMenu.ButtonType type)
-    {
+    private void createChangeMenuButton(int x, int y, int width, ButtonListenerChangeMenu.ButtonType type) {
         ButtonGeneric button = new ButtonGeneric(x, y, width, 20, type.getDisplayName(), type.getIcon());
 
-        if (type == ButtonListenerChangeMenu.ButtonType.AREA_SELECTION_BROWSER &&
-            DataManager.getSchematicProjectsManager().hasProjectOpen())
-        {
+        if (type == ButtonListenerChangeMenu.ButtonType.AREA_SELECTION_BROWSER && DataManager.getSchematicProjectsManager().hasProjectOpen()) {
             button.setEnabled(false);
             button.setHoverStrings("litematica.gui.button.hover.schematic_projects.area_browser_disabled_currently_in_projects_mode");
-        }
-        else if (type == ButtonListenerChangeMenu.ButtonType.SCHEMATIC_PROJECTS_MANAGER)
-        {
+        } else if (type == ButtonListenerChangeMenu.ButtonType.SCHEMATIC_PROJECTS_MANAGER) {
             button.setHoverStrings("litematica.gui.button.hover.schematic_projects.menu_warning");
         }
 
         this.addButton(button, new ButtonListenerChangeMenu(type, this));
     }
 
-    private int getButtonWidth()
-    {
+    private int getButtonWidth() {
         int width = 0;
 
-        for (ButtonListenerChangeMenu.ButtonType type : ButtonListenerChangeMenu.ButtonType.values())
-        {
+        for (ButtonListenerChangeMenu.ButtonType type : ButtonListenerChangeMenu.ButtonType.values()) {
             width = Math.max(width, this.getStringWidth(type.getDisplayName()) + 30);
         }
 
-        for (SelectionMode mode : SelectionMode.values())
-        {
+        for (SelectionMode mode : SelectionMode.values()) {
             String label = StringUtils.translate("litematica.gui.button.area_selection_mode", mode.getDisplayName());
             width = Math.max(width, this.getStringWidth(label) + 10);
         }
@@ -108,25 +98,21 @@ public class GuiMainMenu extends GuiBase
         return width;
     }
 
-    public static class ButtonListenerChangeMenu implements IButtonActionListener
-    {
+    public static class ButtonListenerChangeMenu implements IButtonActionListener {
         private final ButtonType type;
         @Nullable
         private final Screen parent;
 
-        public ButtonListenerChangeMenu(ButtonType type, @Nullable Screen parent)
-        {
+        public ButtonListenerChangeMenu(ButtonType type, @Nullable Screen parent) {
             this.type = type;
             this.parent = parent;
         }
 
         @Override
-        public void actionPerformedWithButton(ButtonBase button, int mouseButton)
-        {
+        public void actionPerformedWithButton(ButtonBase button, int mouseButton) {
             GuiBase gui = null;
 
-            switch (this.type)
-            {
+            switch (this.type) {
                 case AREA_EDITOR:
                     gui = DataManager.getSelectionManager().getEditGui();
                     break;
@@ -159,92 +145,71 @@ public class GuiMainMenu extends GuiBase
                     return;
             }
 
-            if (gui != null)
-            {
+            if (gui != null) {
                 gui.setParent(this.parent);
                 GuiBase.openGui(gui);
             }
         }
 
-        public enum ButtonType
-        {
+        public enum ButtonType {
             // List loaded Schematics in SchematicHolder
-            LOADED_SCHEMATICS           ("litematica.gui.button.change_menu.show_loaded_schematics", ButtonIcons.LOADED_SCHEMATICS),
-            // List Schematics placements
-            SCHEMATIC_PLACEMENTS        ("litematica.gui.button.change_menu.show_schematic_placements", ButtonIcons.SCHEMATIC_PLACEMENTS),
-            // Open the Area Selection browser
-            AREA_SELECTION_BROWSER      ("litematica.gui.button.change_menu.show_area_selections", ButtonIcons.AREA_SELECTION),
-            // Open the Area Editor GUI
-            AREA_EDITOR                 ("litematica.gui.button.change_menu.area_editor", ButtonIcons.AREA_EDITOR),
-            // Load Schematics from file to memory
-            LOAD_SCHEMATICS             ("litematica.gui.button.change_menu.load_schematics_to_memory", ButtonIcons.SCHEMATIC_BROWSER),
-            // Edit Schematics (description or icon), or convert between formats
-            SCHEMATIC_MANAGER           ("litematica.gui.button.change_menu.schematic_manager", ButtonIcons.SCHEMATIC_MANAGER),
-            // Open the Task Manager
-            TASK_MANAGER                ("litematica.gui.button.change_menu.task_manager", ButtonIcons.TASK_MANAGER),
-            // Open the Schematic Projects browser
-            SCHEMATIC_PROJECTS_MANAGER  ("litematica.gui.button.change_menu.schematic_projects_manager", ButtonIcons.SCHEMATIC_PROJECTS),
-            // In-game Configuration GUI
-            CONFIGURATION               ("litematica.gui.button.change_menu.configuration_menu", ButtonIcons.CONFIGURATION),
-            // Switch to the Litematica main menu
-            MAIN_MENU                   ("litematica.gui.button.change_menu.to_main_menu", null);
+            LOADED_SCHEMATICS("litematica.gui.button.change_menu.show_loaded_schematics", ButtonIcons.LOADED_SCHEMATICS), // List Schematics placements
+            SCHEMATIC_PLACEMENTS("litematica.gui.button.change_menu.show_schematic_placements", ButtonIcons.SCHEMATIC_PLACEMENTS), // Open the Area Selection browser
+            AREA_SELECTION_BROWSER("litematica.gui.button.change_menu.show_area_selections", ButtonIcons.AREA_SELECTION), // Open the Area Editor GUI
+            AREA_EDITOR("litematica.gui.button.change_menu.area_editor", ButtonIcons.AREA_EDITOR), // Load Schematics from file to memory
+            LOAD_SCHEMATICS("litematica.gui.button.change_menu.load_schematics_to_memory", ButtonIcons.SCHEMATIC_BROWSER), // Edit Schematics (description or icon), or convert between formats
+            SCHEMATIC_MANAGER("litematica.gui.button.change_menu.schematic_manager", ButtonIcons.SCHEMATIC_MANAGER), // Open the Task Manager
+            TASK_MANAGER("litematica.gui.button.change_menu.task_manager", ButtonIcons.TASK_MANAGER), // Open the Schematic Projects browser
+            SCHEMATIC_PROJECTS_MANAGER("litematica.gui.button.change_menu.schematic_projects_manager", ButtonIcons.SCHEMATIC_PROJECTS), // In-game Configuration GUI
+            CONFIGURATION("litematica.gui.button.change_menu.configuration_menu", ButtonIcons.CONFIGURATION), // Switch to the Litematica main menu
+            MAIN_MENU("litematica.gui.button.change_menu.to_main_menu", null);
 
             private final String labelKey;
             private final ButtonIcons icon;
 
-            private ButtonType(String labelKey, ButtonIcons icon)
-            {
+            ButtonType(String labelKey, ButtonIcons icon) {
                 this.labelKey = labelKey;
                 this.icon = icon;
             }
 
-            public String getLabelKey()
-            {
+            public String getLabelKey() {
                 return this.labelKey;
             }
 
-            public String getDisplayName()
-            {
+            public String getDisplayName() {
                 return StringUtils.translate(this.getLabelKey());
             }
 
-            public ButtonIcons getIcon()
-            {
+            public ButtonIcons getIcon() {
                 return this.icon;
             }
         }
     }
 
-    private static class ButtonListenerCycleToolMode implements IButtonActionListener
-    {
+    private static class ButtonListenerCycleToolMode implements IButtonActionListener {
         private final GuiMainMenu gui;
 
-        private ButtonListenerCycleToolMode(GuiMainMenu gui)
-        {
+        private ButtonListenerCycleToolMode(GuiMainMenu gui) {
             this.gui = gui;
         }
 
         @Override
-        public void actionPerformedWithButton(ButtonBase button, int mouseButton)
-        {
-            ToolMode mode = DataManager.getToolMode().cycle(MinecraftClient.getInstance().player, mouseButton == 0);
+        public void actionPerformedWithButton(ButtonBase button, int mouseButton) {
+            ToolMode mode = DataManager.getToolMode().cycle(MC.player, mouseButton == 0);
             DataManager.setToolMode(mode);
             this.gui.initGui();
         }
     }
 
-    private static class ButtonListenerCycleAreaMode implements IButtonActionListener
-    {
+    private static class ButtonListenerCycleAreaMode implements IButtonActionListener {
         private final GuiMainMenu gui;
 
-        private ButtonListenerCycleAreaMode(GuiMainMenu gui)
-        {
+        private ButtonListenerCycleAreaMode(GuiMainMenu gui) {
             this.gui = gui;
         }
 
         @Override
-        public void actionPerformedWithButton(ButtonBase button, int mouseButton)
-        {
+        public void actionPerformedWithButton(ButtonBase button, int mouseButton) {
             DataManager.getSelectionManager().switchSelectionMode();
             this.gui.initGui();
         }

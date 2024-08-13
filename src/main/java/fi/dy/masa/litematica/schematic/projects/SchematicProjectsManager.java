@@ -15,10 +15,11 @@ import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.JsonUtils;
 
+import static fi.dy.masa.litematica.Litematica.MC;
+
 public class SchematicProjectsManager
 {
     //private static final Pattern PATTERN_NAME_NUMBER = Pattern.compile("(.*)([0-9]+)$");
-    private final MinecraftClient mc = MinecraftClient.getInstance();
 
     @Nullable
     private SchematicProject currentProject;
@@ -62,7 +63,7 @@ public class SchematicProjectsManager
 
         this.currentProject = new SchematicProject(dir, new File(dir, projectName + ".json"));
         this.currentProject.setName(projectName);
-        this.currentProject.setOrigin(fi.dy.masa.malilib.util.PositionUtils.getEntityBlockPos(this.mc.player));
+        this.currentProject.setOrigin(fi.dy.masa.malilib.util.PositionUtils.getEntityBlockPos(MC.player));
         this.currentProject.saveToFile();
     }
 

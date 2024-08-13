@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import static fi.dy.masa.litematica.Litematica.MC;
+
 public class PlacementHandler {
     public static final ImmutableSet<Property<?>> WHITELISTED_PROPERTIES = ImmutableSet.of(
 // BooleanProperty:
@@ -77,7 +79,7 @@ public class PlacementHandler {
         EasyPlaceProtocol protocol = (EasyPlaceProtocol) Configs.Generic.EASY_PLACE_PROTOCOL.getOptionListValue();
 
         if (protocol == EasyPlaceProtocol.AUTO) {
-            if (MinecraftClient.getInstance().isInSingleplayer()) {
+            if (MC.isInSingleplayer()) {
                 return EasyPlaceProtocol.V3;
             }
 

@@ -26,6 +26,8 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.BiConsumer;
 
+import static fi.dy.masa.litematica.Litematica.MC;
+
 public class PositionUtils {
     public static final BlockPosComparator BLOCK_POS_COMPARATOR = new BlockPosComparator();
     public static final ChunkPosComparator CHUNK_POS_COMPARATOR = new ChunkPosComparator();
@@ -566,7 +568,7 @@ public class PositionUtils {
     public static void growOrShrinkCurrentSelection(boolean grow) {
         SelectionManager sm = DataManager.getSelectionManager();
         AreaSelection area = sm.getCurrentSelection();
-        World world = MinecraftClient.getInstance().world;
+        World world = MC.world;
 
         if (area == null || world == null) {
             InfoUtils.showGuiOrInGameMessage(MessageType.ERROR, "litematica.message.error.no_area_selected");

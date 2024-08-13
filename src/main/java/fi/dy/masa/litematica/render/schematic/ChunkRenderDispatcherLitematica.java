@@ -22,6 +22,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 
+import static fi.dy.masa.litematica.Litematica.MC;
+
 public class ChunkRenderDispatcherLitematica {
     private static final Logger LOGGER = Litematica.LOGGER;
     private static final ThreadFactory THREAD_FACTORY = (new ThreadFactoryBuilder()).setNameFormat("Litematica Chunk Batcher %d").setDaemon(true).build();
@@ -224,7 +226,7 @@ public class ChunkRenderDispatcherLitematica {
 
     public ListenableFuture<Object> uploadChunkBlocks(final RenderLayer layer, final BufferBuilder buffer,
                                                       final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic chunkRenderData, final double distanceSq) {
-        if (MinecraftClient.getInstance().isOnThread()) {
+        if (MC.isOnThread()) {
             //if (GuiBase.isCtrlDown()) System.out.printf("uploadChunkBlocks()\n");
             this.uploadVertexBuffer(buffer, renderChunk.getBlocksVertexBufferByLayer(layer));
             return Futures.immediateFuture(null);
@@ -245,7 +247,7 @@ public class ChunkRenderDispatcherLitematica {
 
     public ListenableFuture<Object> uploadChunkOverlay(final OverlayRenderType type, final BufferBuilder buffer,
                                                        final ChunkRendererSchematicVbo renderChunk, final ChunkRenderDataSchematic compiledChunk, final double distanceSq) {
-        if (MinecraftClient.getInstance().isOnThread()) {
+        if (MC.isOnThread()) {
             //if (GuiBase.isCtrlDown()) System.out.printf("uploadChunkOverlay()\n");
             this.uploadVertexBuffer(buffer, renderChunk.getOverlayVertexBuffer(type));
             return Futures.immediateFuture(null);

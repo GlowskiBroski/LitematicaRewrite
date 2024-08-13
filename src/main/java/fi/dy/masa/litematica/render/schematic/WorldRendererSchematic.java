@@ -37,6 +37,8 @@ import org.joml.Matrix4fStack;
 import javax.annotation.Nullable;
 import java.util.*;
 
+import static fi.dy.masa.litematica.Litematica.MC;
+
 public class WorldRendererSchematic {
     private final MinecraftClient mc;
     private final EntityRenderDispatcher entityRenderDispatcher;
@@ -79,7 +81,7 @@ public class WorldRendererSchematic {
 
         this.renderChunkFactory = ChunkRendererSchematicVbo::new;
 
-        this.blockRenderManager = MinecraftClient.getInstance().getBlockRenderManager();
+        this.blockRenderManager = MC.getBlockRenderManager();
         this.blockModelRenderer = new BlockModelRendererSchematic(mc.getBlockColors());
     }
 
@@ -569,7 +571,7 @@ public class WorldRendererSchematic {
             double cameraY = camera.getPos().y;
             double cameraZ = camera.getPos().z;
 
-            MinecraftClient.getInstance().getBlockEntityRenderDispatcher().configure(this.world, camera, this.mc.crosshairTarget);
+            MC.getBlockEntityRenderDispatcher().configure(this.world, camera, this.mc.crosshairTarget);
             this.entityRenderDispatcher.configure(this.world, camera, this.mc.targetedEntity);
 
             this.countEntitiesTotal = 0;
@@ -626,7 +628,7 @@ public class WorldRendererSchematic {
             }
 
             this.world.getProfiler().swap("block_entities");
-            BlockEntityRenderDispatcher renderer = MinecraftClient.getInstance().getBlockEntityRenderDispatcher();
+            BlockEntityRenderDispatcher renderer = MC.getBlockEntityRenderDispatcher();
 
             for (ChunkRendererSchematicVbo chunkRenderer : this.renderInfos) {
                 ChunkRenderDataSchematic data = chunkRenderer.getChunkRenderData();

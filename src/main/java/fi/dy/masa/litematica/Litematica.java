@@ -3,11 +3,13 @@ package fi.dy.masa.litematica;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.malilib.event.InitializationHandler;
 import net.fabricmc.api.ModInitializer;
+import net.minecraft.client.MinecraftClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class Litematica implements ModInitializer {
     public static final Logger LOGGER = LogManager.getLogger(Reference.MOD_ID);
+    public static final MinecraftClient MC = MinecraftClient.getInstance();
 
     @Override
     public void onInitialize() {

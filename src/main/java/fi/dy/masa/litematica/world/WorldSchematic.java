@@ -48,6 +48,8 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import static fi.dy.masa.litematica.Litematica.MC;
+
 public class WorldSchematic extends World {
     protected static final RegistryKey<World> REGISTRY_KEY = RegistryKey.of(RegistryKeys.WORLD, new Identifier(Reference.MOD_ID, "schematic_world"));
 
@@ -65,11 +67,11 @@ public class WorldSchematic extends World {
                           RegistryEntry<DimensionType> dimension,
                           Supplier<Profiler> supplier,
                           @Nullable WorldRendererSchematic worldRenderer) {
-        super(properties, REGISTRY_KEY, !registryManager.equals(DynamicRegistryManager.EMPTY) ? registryManager : MinecraftClient.getInstance().world.getRegistryManager(), dimension, supplier, true, false, 0L, 0);
+        super(properties, REGISTRY_KEY, !registryManager.equals(DynamicRegistryManager.EMPTY) ? registryManager : MC.world.getRegistryManager(), dimension, supplier, true, false, 0L, 0);
 
-        this.mc = MinecraftClient.getInstance();
+        this.mc = MC;
         if (this.mc == null || this.mc.world == null) {
-            throw new RuntimeException("WorldSchematic invoked when MinecraftClient.getInstance() or mc.world is null");
+            throw new RuntimeException("WorldSchematic invoked when MC or mc.world is null");
         }
         this.worldRenderer = worldRenderer;
         this.chunkManagerSchematic = new ChunkManagerSchematic(this);

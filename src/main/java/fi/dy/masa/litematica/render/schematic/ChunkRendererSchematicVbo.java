@@ -38,6 +38,8 @@ import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
+import static fi.dy.masa.litematica.Litematica.MC;
+
 public class ChunkRendererSchematicVbo {
     public static int schematicRenderChunksUpdated;
 
@@ -603,7 +605,7 @@ public class ChunkRendererSchematicVbo {
         BlockEntity te = this.schematicWorldView.getBlockEntity(pos, WorldChunk.CreationType.CHECK);
 
         if (te != null) {
-            BlockEntityRenderer<BlockEntity> tesr = MinecraftClient.getInstance().getBlockEntityRenderDispatcher().get(te);
+            BlockEntityRenderer<BlockEntity> tesr = MC.getBlockEntityRenderDispatcher().get(te);
 
             if (tesr != null) {
                 chunkRenderData.addBlockEntity(te);
@@ -738,7 +740,7 @@ public class ChunkRendererSchematicVbo {
     private void rebuildWorldView() {
         synchronized (this.boxes) {
             this.ignoreClientWorldFluids = Configs.Visuals.IGNORE_EXISTING_FLUIDS.getBooleanValue();
-            ClientWorld worldClient = MinecraftClient.getInstance().world;
+            ClientWorld worldClient = MC.world;
             this.schematicWorldView = new ChunkCacheSchematic(this.world, worldClient, this.position, 2);
             this.clientWorldView = new ChunkCacheSchematic(worldClient, worldClient, this.position, 2);
             this.boxes.clear();

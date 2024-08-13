@@ -3,38 +3,37 @@ package fi.dy.masa.litematica.render.infohud;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.malilib.config.HudAlignment;
 import fi.dy.masa.malilib.util.GuiUtils;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static fi.dy.masa.litematica.Litematica.MC;
+
 public class InfoHud {
     private static final InfoHud INSTANCE = new InfoHud();
 
-    protected final MinecraftClient mc;
     protected final List<String> lineList = new ArrayList<>();
     protected final List<IInfoHudRenderer> renderers = new ArrayList<>();
     protected boolean enabled = true;
 
-    public static InfoHud getInstance() {
-        return INSTANCE;
+    protected InfoHud() {
     }
 
-    protected InfoHud() {
-        this.mc = MinecraftClient.getInstance();
+    public static InfoHud getInstance() {
+        return INSTANCE;
     }
 
     public boolean isEnabled() {
         return enabled;
     }
 
-    protected double getScaleFactor() {
-        return Configs.InfoOverlays.INFO_HUD_SCALE.getDoubleValue();
-    }
-
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    protected double getScaleFactor() {
+        return Configs.InfoOverlays.INFO_HUD_SCALE.getDoubleValue();
     }
 
     public boolean toggleEnabled() {
@@ -51,7 +50,7 @@ public class InfoHud {
     }
 
     public void renderHud(DrawContext drawContext) {
-        if (this.mc.player != null && this.shouldRender()) {
+        if (MC.player != null && this.shouldRender()) {
             this.lineList.clear();
 
             final int maxLines = Configs.InfoOverlays.INFO_HUD_MAX_LINES.getIntegerValue();

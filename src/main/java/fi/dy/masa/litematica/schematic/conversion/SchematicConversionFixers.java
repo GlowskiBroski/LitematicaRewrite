@@ -28,6 +28,7 @@ import net.minecraft.block.WallBannerBlock;
 import net.minecraft.block.WallSkullBlock;
 import net.minecraft.block.enums.BedPart;
 import net.minecraft.block.enums.DoubleBlockHalf;
+import net.minecraft.block.enums.StairShape;
 import net.minecraft.block.enums.WireConnection;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
@@ -40,9 +41,10 @@ import net.minecraft.world.BlockView;
 
 import fi.dy.masa.litematica.mixin.IMixinFenceGateBlock;
 import fi.dy.masa.litematica.mixin.IMixinRedstoneWireBlock;
-import fi.dy.masa.litematica.mixin.IMixinStairsBlock;
 import fi.dy.masa.litematica.mixin.IMixinVineBlock;
 import fi.dy.masa.malilib.util.Constants;
+
+import static net.minecraft.block.StairsBlock.HALF;
 
 public class SchematicConversionFixers
 {
@@ -482,8 +484,43 @@ public class SchematicConversionFixers
     };
 
     public static final IStateFixer FIXER_STAIRS = (reader, state, pos) -> {
-        return state.with(StairsBlock.SHAPE, IMixinStairsBlock.invokeGetStairShape(state, reader, pos));
+        return state.with(StairsBlock.SHAPE, getStairShape(state, reader, pos));
     };
+
+    //These are stolen from StairsBlock as they are private, but necessary. Could not use an accessor as it broke Intellij Hotswapping
+    private static StairShape getStairShape(BlockState state, BlockView world, BlockPos pos) {
+        Direction direction = (Direction)state.get(StairsBlock.FACING);
+        BlockState blockState = world.getBlockState(pos.offset(direction));
+        if (StairsBlock.isStairs(blockState) && state.get(HALF) == blockState.get(HALF)) {
+            Direction direction2 = (Direction)blockState.get(StairsBlock.FACING);
+            if (direction2.getAxis() != ((Direction)state.get(StairsBlock.FACING)).getAxis() && isDifferentOrientation(state, world, pos, direction2.getOpposite())) {
+                if (direction2 == direction.rotateYCounterclockwise()) {
+                    return StairShape.OUTER_LEFT;
+                }
+
+                return StairShape.OUTER_RIGHT;
+            }
+        }
+
+        BlockState blockState2 = world.getBlockState(pos.offset(direction.getOpposite()));
+        if (StairsBlock.isStairs(blockState2) && state.get(HALF) == blockState2.get(HALF)) {
+            Direction direction3 = (Direction)blockState2.get(StairsBlock.FACING);
+            if (direction3.getAxis() != ((Direction)state.get(StairsBlock.FACING)).getAxis() && isDifferentOrientation(state, world, pos, direction3)) {
+                if (direction3 == direction.rotateYCounterclockwise()) {
+                    return StairShape.INNER_LEFT;
+                }
+
+                return StairShape.INNER_RIGHT;
+            }
+        }
+
+        return StairShape.STRAIGHT;
+    }
+
+    private static boolean isDifferentOrientation(BlockState state, BlockView world, BlockPos pos, Direction dir) {
+        BlockState blockState = world.getBlockState(pos.offset(dir));
+        return !StairsBlock.isStairs(blockState) || blockState.get(StairsBlock.FACING) != state.get(StairsBlock.FACING) || blockState.get(HALF) != state.get(HALF);
+    }
 
     public static final IStateFixer FIXER_STEM = (reader, state, pos) -> {
         /* FIXME 1.20.3 - the gourd block and attached stem are now RegistryKey<Block>, plus they are private...

@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 
+import static fi.dy.masa.litematica.Litematica.MC;
+
 public class ChunkRenderWorkerLitematica implements Runnable {
     private static final Logger LOGGER = Litematica.LOGGER;
 
@@ -46,7 +48,7 @@ public class ChunkRenderWorkerLitematica implements Runnable {
                 return;
             } catch (Throwable throwable) {
                 CrashReport crashreport = CrashReport.create(throwable, "Batching chunks");
-                MinecraftClient.getInstance().setCrashReportSupplier(MinecraftClient.getInstance().addDetailsToCrashReport(crashreport));
+                MC.setCrashReportSupplier(MC.addDetailsToCrashReport(crashreport));
                 return;
             }
         }
@@ -69,7 +71,7 @@ public class ChunkRenderWorkerLitematica implements Runnable {
             task.getLock().unlock();
         }
 
-        Entity entity = MinecraftClient.getInstance().getCameraEntity();
+        Entity entity = MC.getCameraEntity();
 
         if (entity == null) {
             task.finish();
@@ -182,7 +184,7 @@ public class ChunkRenderWorkerLitematica implements Runnable {
                     ChunkRenderWorkerLitematica.this.freeRenderBuilder(task);
 
                     if (!(throwable instanceof CancellationException) && !(throwable instanceof InterruptedException)) {
-                        MinecraftClient.getInstance().setCrashReportSupplier(CrashReport.create(throwable, "Rendering Litematica chunk"));
+                        MC.setCrashReportSupplier(CrashReport.create(throwable, "Rendering Litematica chunk"));
                     }
                 }
             }, MoreExecutors.directExecutor());
