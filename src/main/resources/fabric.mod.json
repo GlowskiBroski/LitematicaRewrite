@@ -22,7 +22,7 @@
 	"environment": "client",
 	"entrypoints": {
 		"main": [
-			"fi.dy.masa.litematica.Litematica"
+			"com.glow.litematicarecode.LitematicaRewrite"
 		],
 		"modmenu": [
 			"fi.dy.masa.litematica.compat.modmenu.ModMenuImpl"
