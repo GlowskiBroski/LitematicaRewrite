@@ -20,7 +20,7 @@ public abstract class MixinClientPacketListener {
     private void litematica_onUpdateChunk(ClientboundLevelChunkWithLightPacket packet, CallbackInfo ci) {
         int chunkX = packet.getX();
         int chunkZ = packet.getZ();
-        //Litematica.debugLog("MixinClientPlayNetworkHandler#litematica_onUpdateChunk({}, {})", chunkX, chunkZ);
+        //LitematicaRewrite.debugLog("MixinClientPlayNetworkHandler#litematica_onUpdateChunk({}, {})", chunkX, chunkZ);
 
         if (Configs.Visuals.ENABLE_RENDERING.getBooleanValue() && Configs.Visuals.ENABLE_SCHEMATIC_RENDERING.getBooleanValue()) {
             SchematicWorldRefresher.INSTANCE.markSchematicChunksForRenderUpdate(chunkX, chunkZ);
@@ -33,7 +33,7 @@ public abstract class MixinClientPacketListener {
     @Inject(method = "handleForgetLevelChunk", at = @At("RETURN"))
     private void litematica_onChunkUnload(ClientboundForgetLevelChunkPacket packet, CallbackInfo ci) {
         if (!Configs.Generic.LOAD_ENTIRE_SCHEMATICS.getBooleanValue()) {
-            //Litematica.debugLog("MixinClientPlayNetworkHandler#litematica_onChunkUnload({}, {})", packet.pos().x, packet.pos().z);
+            //LitematicaRewrite.debugLog("MixinClientPlayNetworkHandler#litematica_onChunkUnload({}, {})", packet.pos().x, packet.pos().z);
             DataManager.getSchematicPlacementManager().onClientChunkUnload(packet.pos().x, packet.pos().z);
         }
     }

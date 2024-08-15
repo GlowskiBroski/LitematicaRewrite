@@ -8,8 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(RedStoneWireBlock.class)
-public interface IMixinRedStoneWireBlock
-{
+public interface IMixinRedStoneWireBlock {
     @Invoker("getConnectionState")
     BlockState litematicaGetPlacementState(BlockGetter world, BlockState state, BlockPos pos);
 }

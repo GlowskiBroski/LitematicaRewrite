@@ -1,37 +1,42 @@
 {
-    "required": true,
-    "package": "fi.dy.masa.litematica.mixin",
-    "compatibilityLevel": "JAVA_17",
-    "minVersion": "0.8",
-    "client": [
-        "IMixinClientboundSectionBlockUpdatePacket",
-        "IMixinEntity",
-        "IMixinFenceGateBlock",
-        "IMixinAbstractContainerScreen",
-        "IMixinRedStoneWireBlock",
-        "IMixinSignBlockEntity",
-        "IMixinVineBlock",
-        "IMixinFaceAttachedHorizontalDirectionalBlock",
-        "IMixinLevelTicks",
-        "MixinAbstractSignEditScreen",
-        "MixinBlock",
-        "MixinBlockItem",
-        "MixinBlockStateData",
-        "MixinChestBlock",
-        "MixinClientCommonPacketListenerImpl",
-      "MixinClientPacketListener",
-        "MixinDebugScreenOverlay",
-        "MixinAbstractContainerScreen",
-        "MixinIntegratedServer",
-        "MixinMinecraft",
-        "MixinItemOverrides",
-        "MixinRailBlocks",
-        "MixinServerGamePacketListenerImpl",
-        "MixinLevel",
-        "MixinLevelChunk",
-      "MixinLevelRenderer"
-    ],
-    "injectors": {
-        "defaultRequire": 1
-	}
+  "required": true,
+  "package": "fi.dy.masa.litematica.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "minVersion": "0.8",
+  "client": [
+    "IMixinAbstractContainerScreen",
+    "IMixinClientboundSectionBlockUpdatePacket",
+    "IMixinDebugQueryHandler",
+    "IMixinEntity",
+    "IMixinFaceAttachedHorizontalDirectionalBlock",
+    "IMixinFenceGateBlock",
+    "IMixinLevelTicks",
+    "IMixinRedStoneWireBlock",
+    "IMixinSignBlockEntity",
+    "IMixinVineBlock",
+    "MixinAbstractContainerScreen",
+    "MixinAbstractSignEditScreen",
+    "MixinBlock",
+    "MixinBlockItem",
+    "MixinBlockStateData",
+    "MixinChestBlock",
+    "MixinClientCommonPacketListenerImpl",
+    "MixinClientPacketListener",
+    "MixinDebugScreenOverlay",
+    "MixinIntegratedServer",
+    "MixinItemOverrides",
+    "MixinLevel",
+    "MixinLevelChunk",
+    "MixinLevelRenderer",
+    "MixinMinecraft",
+    "MixinRailBlocks",
+    "MixinServerGamePacketListenerImpl"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixins": [
+    "IMixinFaceAttachedHorizontalDirectionalBlock",
+    "IMixinWorld"
+  ]
 }

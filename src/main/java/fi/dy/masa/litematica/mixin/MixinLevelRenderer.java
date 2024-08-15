@@ -2,6 +2,7 @@ package fi.dy.masa.litematica.mixin;
 
 import fi.dy.masa.litematica.render.LitematicaRenderer;
 import net.minecraft.client.Camera;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;
@@ -48,28 +49,8 @@ public abstract class MixinLevelRenderer {
     }
 
     @Inject(method = "renderLevel", at = @At(value = "INVOKE_STRING", args = "ldc=blockentities", target = "Lnet/minecraft/util/profiling/ProfilerFiller;popPush(Ljava/lang/String;)V"))
-    private void onPostRenderEntities(float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightmapTextureManager, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci) {
-        LitematicaRenderer.getInstance().piecewiseRenderEntities(matrix4f, tickDelta);
+    private void onPostRenderEntities(DeltaTracker deltaTracker, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci) {
+        LitematicaRenderer.getInstance().piecewiseRenderEntities(matrix4f, deltaTracker.getGameTimeDeltaPartialTick(false));
     }
 
-    /*
-    @Inject(method = "render", at = @At("TAIL"))
-    private void onRenderWorldLast(
-            net.minecraft.client.util.math.MatrixStack matrices,
-            float tickDelta, long limitTime, boolean renderBlockOutline,
-            net.minecraft.client.render.Camera camera,
-            net.minecraft.client.render.GameRenderer gameRenderer,
-            net.minecraft.client.render.LightmapTextureManager lightmapTextureManager,
-            net.minecraft.client.util.math.Matrix4f matrix4f,
-            CallbackInfo ci)
-    {
-        boolean invert = Hotkeys.INVERT_GHOST_BLOCK_RENDER_STATE.getKeybind().isKeybindHeld();
-
-        if (Configs.Visuals.ENABLE_SCHEMATIC_RENDERING.getBooleanValue() != invert &&
-            Configs.Generic.BETTER_RENDER_ORDER.getBooleanValue() == false)
-        {
-            LitematicaRenderer.getInstance().renderSchematicWorld(matrices, matrix4f, tickDelta);
-        }
-    }
-    */
 }

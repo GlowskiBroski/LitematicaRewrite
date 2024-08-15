@@ -1,5 +1,7 @@
 package com.glow.litematicarecode;
 
+import com.glow.gbgui.gui.GuiManager;
+import com.glow.litematicarecode.gui.TestGUI;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
@@ -16,19 +18,37 @@ import fi.dy.masa.malilib.event.TickHandler;
 import fi.dy.masa.malilib.event.WorldLoadHandler;
 import fi.dy.masa.malilib.interfaces.IRenderer;
 import net.fabricmc.api.ModInitializer;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.glfw.GLFW;
 
 //TODO: Put new and repaired classes into the com.glow.litematicarecode folder. Slowly transition to a better base
+
+//TODO: After you make refinements, separate out the common classes from this and phoenixclient into a library that can be used by both
+// It will be more organized. That would be very nice
 
 public class LitematicaRewrite implements ModInitializer {
 
     public static final Logger LOGGER = LogManager.getLogger(Reference.MOD_ID);
     public static final Minecraft MC = Minecraft.getInstance();
 
+    public static void debugLog(String msg, Object... args) {
+        if (Configs.Generic.DEBUG_LOGGING.getBooleanValue()) {
+            LOGGER.info(msg, args);
+        }
+    }
+
     @Override
     public void onInitialize() {
+        oldLitematicaInitializers();
+
+        GuiManager.getInstance()
+                .addGUI(new TestGUI("Title"), new KeyMapping("Test GUI Key", GLFW.GLFW_KEY_ENTER, "Litematica"));
+    }
+
+    private void oldLitematicaInitializers() {
         ConfigManager.getInstance().registerConfigHandler(Reference.MOD_ID, new Configs());
 
         InputEventHandler.getKeybindManager().registerKeybindProvider(InputHandler.getInstance());
@@ -50,11 +70,5 @@ public class LitematicaRewrite implements ModInitializer {
 
         DataManager.getAreaSelectionsBaseDirectory();
         DataManager.getSchematicsBaseDirectory();
-    }
-
-    public static void debugLog(String msg, Object... args) {
-        if (Configs.Generic.DEBUG_LOGGING.getBooleanValue()) {
-            LOGGER.info(msg, args);
-        }
     }
 }
